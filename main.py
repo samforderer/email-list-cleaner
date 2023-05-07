@@ -6,9 +6,8 @@ import time
 
 # function definitions 
     
-
 def syntaxCheck(email):
-    regex = '^[a-z0-9]+[._-]?[a-z0-9]+[@][a-z0-9]+[.][a-z]{2,3}$' 
+    regex = '^[a-z0-9]+[._-]?[a-z0-9]+[@][a-z0-9]+[._-]?[a-z0-9]+\.[a-z]{2,3}$' 
     match = bool(re.match(regex, email))
     return match
 
@@ -45,36 +44,38 @@ def readfile(in_file, startrow, endrow, index):
         for line in itertools.islice(csv_reader, startrow, endrow):
             emailList.append(line[index])
             print(line[index])
+            time.sleep(0.1)
+
+        return emailList
+        
 
 
 # reads the list from readfile and adds them to new specified CSV file if the email is valid
-def writefile(out_file):
+def writefile(out_file, emailList):
     with open(f'{out_file}.csv', 'a', newline='') as file:
 
         writer = csv.writer(file)
+
         for i in range(0, len(emailList)):
-            print(f'starting {i}') 
-            is_valid = validate_email(emailList[i])
-            if is_valid:
-                writer.writerow([f'{emailList[i]}'])
-                print(valid)
-            else:
-                print("not adding to list")
+            writer.writerow([f'{emailList[i]}'])
         
-        return emailList
 
 
 # main menu to select which option 
 def menu():
+
     choice = ''
-    text = '\nEMAIL TOOLS (Select Option)'
-    text2 = '1. Read List \n2. Check Syntax \n3. Write File \n'
-    
-    menu_options = ('1', '2', '3', 'q')
+    text = 'Welcome to: Email Validation Tools (Select Option)'
+    text2 = '1. Read List \n2. Validate List \n3. Write File \n'
+    emailList = []
+    separator = "-"*50 
+
     while True:
-        
+        print(separator)
         print(text)
-        print()
+        if emailList:
+            print("List Loaded: ", len(emailList))
+        print(separator)
         choice = input(text2)
 
         # read file 
@@ -84,38 +85,45 @@ def menu():
             inFile = input("Enter file name: ")
             
             startRow = int(input("What row to start processing from: "))
-            endRow = int(input("Enter number of rows to validate: "))
+            endRow = int(input("Enter number of rows to validate: ")) + 1
             startIndex = int(input("Enter column number: "))
-
-            readfile(inFile, startRow, endRow, startIndex) 
+            print()
+            try:
+                emailList = readfile(inFile, startRow, endRow, startIndex) 
+            except:
+                print("File not Found")
 
         # Check syntax
-        elif choice == '2':                    
-            email = input("REGEX: Enter String: \n")
-            print("Processing...")
-            time.sleep(2)
-            if validate_email(email):
-                print("This email has good syntax")
+        elif choice == '2':
+            if emailList:
+                count = 1
+                for email in emailList:
+                    print(count, "Processing...")
+                    time.sleep(0.3)
+                    if validate_email(email):
+                        print("This email has good syntax")
+                    else:
+                        print("Error: This email has bad syntax")
+                    time.sleep(0.5)
+                    count += 1 
             else:
-                print("Error: This email has bad syntax")
-            time.sleep(0.5)
+                print(separator)
+                print("You must load data into the list before validating!")
+                time.sleep(0.4)
 
         elif choice == '3':
             if emailList: 
                 outFile = input("Enter Name of output file: ")
-                writefile(outFile)
+                writefile(outFile, emailList)
             else:
                 print("You must load data into the list before writing out")
 
         elif choice == 'quit':
             break
+        else:
+            print("invalid input")
 
 
 # MAIN PROGRAM 
-
-#initialize the list data 
-emailList=[]
-
 menu()
          
-# create menu that has read file option that allows you to read a specified amount of emails from a csv and add it to a list, you can then decide how you want to process the data 
