@@ -1,5 +1,5 @@
 # Bulk Email Cleaner
-- a simple python utility to validate a csv file containing email addresses
+- a simple python utility to validate a list of email addresses contained in a .csv file.
 
 3 Stages of Email Verification
 1. syntax
